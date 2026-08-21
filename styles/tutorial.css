@@ -4,39 +4,58 @@
  * Styles for the interactive tutorial in index.html.
  */
 
-header {
-  margin-bottom: 2rem;
+.demo {
+  background-color: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  padding: var(--rhythm-md);
+  margin: var(--rhythm-md) 0;
 }
 
-.tagline {
-  font-size: 1.2rem;
-  color: var(--trinary-color);
-  margin-top: -0.5rem;
+.demo label {
+  display: block;
+  font-family: "Roboto Condensed", sans-serif;
+  font-size: calc(var(--type-body) * 0.9);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: var(--rhythm-sm) 0 var(--rhythm-xs);
+  color: #666;
 }
 
-main section {
-  margin-bottom: 2.5rem;
+.demo label:first-child {
+  margin-top: 0;
 }
 
-h2 {
-  font-size: var(--h2-font-size);
-  color: var(--foreground-color);
-  border-bottom: 2px solid var(--highlight-color);
-  padding-bottom: 0.25rem;
+.demo p {
+  text-indent: 0;
 }
 
-h3 {
-  font-size: var(--h3-font-size);
-  color: var(--foreground-color);
+.two-up {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--rhythm-md);
 }
 
-a {
-  color: var(--notification-color);
-  text-decoration: underline;
+@media (min-width: 640px) {
+  .two-up {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-a:hover {
-  color: var(--foreground-color);
+output {
+  display: block;
+  margin-top: var(--rhythm-sm);
+  padding: var(--rhythm-xs);
+  background-color: var(--color-bg);
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95rem;
+}
+
+output.big {
+  font-size: 1.25rem;
+  text-align: center;
+  padding: var(--rhythm-sm);
 }
 
 pre,
@@ -46,15 +65,15 @@ code {
 }
 
 pre {
-  background-color: var(--secondary-color);
-  border-left: 4px solid var(--highlight-color);
+  background-color: rgba(0, 0, 0, 0.04);
+  border-left: 4px solid var(--color-link);
   border-radius: 4px;
-  padding: 1rem;
+  padding: var(--rhythm-md);
   overflow-x: auto;
 }
 
 code {
-  background-color: var(--secondary-color);
+  background-color: rgba(0, 0, 0, 0.04);
   padding: 0.125rem 0.25rem;
   border-radius: 3px;
 }
@@ -67,92 +86,54 @@ pre code {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
+  margin: var(--rhythm-md) 0;
 }
 
 th,
 td {
   text-align: left;
-  padding: 0.5rem;
-  border-bottom: 1px solid var(--quaternary-color);
+  padding: var(--rhythm-xs);
+  border-bottom: 1px solid var(--color-rule);
 }
 
 th {
-  background-color: var(--secondary-color);
-  color: var(--foreground-color);
-}
-
-.demo {
-  background-color: var(--secondary-color);
-  border: 1px solid var(--quaternary-color);
-  border-radius: 6px;
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-.demo label {
-  display: block;
-  font-weight: 600;
-  margin: 0.75rem 0 0.25rem;
-  color: var(--trinary-color);
-}
-
-.demo label:first-child {
-  margin-top: 0;
-}
-
-.two-up {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-@media (min-width: 640px) {
-  .two-up {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-output {
-  display: block;
-  margin-top: 0.75rem;
-  padding: 0.5rem;
-  background-color: var(--background-color);
-  border-radius: 4px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.95rem;
-}
-
-output.big {
-  font-size: 1.25rem;
-  text-align: center;
-  padding: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--color-heading);
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: calc(var(--type-body) * 0.9);
 }
 
 input[type="text"] {
   width: 100%;
-  padding: 0.5rem;
+  padding: var(--rhythm-xs);
   font-size: 1rem;
-  border: 1px solid var(--quaternary-color);
+  font-family: inherit;
+  border: 1px solid var(--color-rule);
   border-radius: 4px;
-  background-color: var(--background-color);
-  color: var(--foreground-color);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   box-sizing: border-box;
 }
 
 button {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
+  margin-top: var(--rhythm-xs);
+  padding: var(--rhythm-xs) var(--rhythm-sm);
   font-size: 1rem;
+  font-family: "Roboto Condensed", sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
-  background-color: var(--foreground-color);
-  color: var(--background-color);
+  background-color: var(--color-link);
+  color: var(--color-bg);
   border: none;
   border-radius: 4px;
 }
 
 button:hover {
-  background-color: var(--notification-color);
+  background-color: var(--color-link-hover);
 }
 
 #corpus {
@@ -162,9 +143,9 @@ button:hover {
 }
 
 #corpus li {
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  background-color: var(--background-color);
+  padding: var(--rhythm-xs);
+  margin-bottom: var(--rhythm-xs);
+  background-color: var(--color-bg);
   border-radius: 4px;
 }
 
@@ -174,7 +155,7 @@ button:hover {
 
 #search-results {
   min-height: 2rem;
-  padding-left: 1.25rem;
+  padding-left: var(--rhythm-md);
 }
 
 #search-results li {
@@ -182,13 +163,5 @@ button:hover {
 }
 
 .error {
-  color: var(--error-color);
-}
-
-footer {
-  margin-top: 3rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--quaternary-color);
-  color: var(--trinary-color);
-  text-align: center;
+  color: var(--color-link);
 }

@@ -9,25 +9,38 @@
   
   *** end ascii art ***
   
-  Most aesthethic options should live here for adjustment
+  Theme variables for the generate-embedding tutorial page.
+  Typographic system per Bringhurst, adapted from the archive consulting site.
 */
 
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-  --background-color: #fcf9f0;
-  --foreground-color: #0a5c0a;
-  --highlight-color: #b3d9b6;
-  --secondary-color: #ede9d7;
-  --trinary-color: #8aa38a;
-  --quaternary-color: #d4cfbd;
-  --confirmation-color: #0a5c0a;
-  --notification-color: #377c43;
-  --inactive-color: #cccccc;
-  --warning-color: #639e71;
-  --error-color: #ff6b6b;
-  --neutral-color: #1c3320;
-  --h1-font-size: 200%;
-  --h2-font-size: 180%;
-  --h3-font-size: 150%;
+  /* Palette — warm paper */
+  --color-bg:         #f2ece2;
+  --color-text:       #444;
+  --color-heading:    #444;
+  --color-link:       #E4191C;
+  --color-link-hover: #9F1113;
+  --color-rule:       rgba(0, 0, 0, 0.12);
 
+  /* Modular scale (minor third, 1.2 ratio) */
+  --type-body: 1.25rem;
+  --type-h3:   1.5rem;
+  --type-h2:   1.8rem;
+  --type-h1:   2.16rem;
+
+  /* Leading */
+  --leading-body:    1.4;
+  --leading-heading: 1.15;
+
+  /* Spacing rhythm (multiples of body line-height ≈ 22.4px) */
+  --rhythm-xs: 0.5rem;
+  --rhythm-sm: 1rem;
+  --rhythm-md: 1.5rem;
+  --rhythm-lg: 2rem;
+  --rhythm-xl: 3rem;
+
+  /* Measure */
+  --measure: 60ch;
 }

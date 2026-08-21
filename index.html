@@ -13,15 +13,32 @@
 
 <body>
   <header>
-    <h1>generate-embedding</h1>
-    <p class="tagline">
-      Turn any text on a web page into a 384-dimensional sentence embedding —
-      locally, in the browser, with no API key.
-    </p>
+    <logo-container>
+      <svg class="monad" viewBox="0 0 779 779" xmlns="http://www.w3.org/2000/svg" style="fill-rule:evenodd;clip-rule:evenodd;">
+        <g transform="matrix(0,4.166667,-4.166667,0,1292,-208)">
+          <circle cx="144" cy="216" r="89.336" style="stroke-width:3.03px;"/>
+        </g>
+        <g transform="matrix(-4.166767,2.462424,-4.166566,-2.462543,1914.864427,37.4223)">
+          <ellipse cx="254.742" cy="110.742" rx="62.38" ry="62.381"/>
+        </g>
+      </svg>
+      <h1>generate-embedding</h1>
+      <h4 class="tagline">Turn any text on a web page into a 384-dimensional sentence embedding — locally, in the browser, with no API key.</h4>
+    </logo-container>
+
+    <nav>
+      <a href="#intro">Intro</a>
+      <a href="#quick-start">Quick start</a>
+      <a href="#step-1">Editable text</a>
+      <a href="#step-2">Similarity</a>
+      <a href="#step-3">Search</a>
+      <a href="#reference">Reference</a>
+    </nav>
   </header>
 
   <main>
     <section id="intro">
+      <h2><span class="glyph">≈</span> Intro</h2>
       <p>
         <code>&lt;generate-embedding&gt;</code> is a vanilla-JS custom element
         that watches its own text, sends it to a dedicated web worker, and emits
@@ -33,7 +50,7 @@
     </section>
 
     <section id="quick-start">
-      <h2>Quick start</h2>
+      <h2><span class="glyph">⚡</span> Quick start</h2>
       <pre><code>git clone https://github.com/lnsy-dev/generate-embedding.git
 cd generate-embedding
 npm install
@@ -46,7 +63,7 @@ npm start</code></pre>
     </section>
 
     <section id="step-1">
-      <h2>Step 1 — Embed editable text</h2>
+      <h2><span class="glyph">✎</span> Step 1 — Embed editable text</h2>
       <p>
         The component watches <code>innerText</code>. Edit the sentence below and
         pause typing; a 384-dim vector is emitted after the debounce interval.
@@ -70,7 +87,7 @@ el.addEventListener('EMBEDDING-RESULT', (event) => {
     </section>
 
     <section id="step-2">
-      <h2>Step 2 — Compare sentences with cosine similarity</h2>
+      <h2><span class="glyph">◎</span> Step 2 — Compare sentences with cosine similarity</h2>
       <p>
         Embeddings turn sentences into points in space. Two vectors that point in
         the same direction are semantically similar. The cosine similarity score
@@ -92,7 +109,7 @@ el.addEventListener('EMBEDDING-RESULT', (event) => {
     </section>
 
     <section id="step-3">
-      <h2>Step 3 — Tiny semantic search engine</h2>
+      <h2><span class="glyph">⚗</span> Step 3 — Tiny semantic search engine</h2>
       <p>
         Because every embedding lives in the same 384-dimensional space, you can
         find the sentence closest to a query by comparing vectors.
@@ -116,7 +133,7 @@ el.addEventListener('EMBEDDING-RESULT', (event) => {
     </section>
 
     <section id="step-4">
-      <h2>Step 4 — Persist embeddings in markup</h2>
+      <h2><span class="glyph">✦</span> Step 4 — Persist embeddings in markup</h2>
       <p>
         Every successful embed writes <code>generated</code> and
         <code>vector</code> attributes to the element. If you save that markup and
@@ -133,7 +150,7 @@ el.addEventListener('EMBEDDING-RESULT', (event) => {
     </section>
 
     <section id="step-5">
-      <h2>Step 5 — Configuration</h2>
+      <h2><span class="glyph">⚙</span> Step 5 — Configuration</h2>
       <table>
         <thead>
           <tr><th>Attribute</th><th>Default</th><th>Purpose</th></tr>
@@ -149,7 +166,7 @@ el.addEventListener('EMBEDDING-RESULT', (event) => {
     </section>
 
     <section id="step-6">
-      <h2>Step 6 — Tests and production build</h2>
+      <h2><span class="glyph">✓</span> Step 6 — Tests and production build</h2>
       <pre><code># Unit tests
 npm run test:unit
 
@@ -168,7 +185,7 @@ npm run build</code></pre>
     </section>
 
     <section id="reference">
-      <h2>Events reference</h2>
+      <h2><span class="glyph">☰</span> Events reference</h2>
       <table>
         <thead>
           <tr><th>Event</th><th>Detail</th><th>When</th></tr>
