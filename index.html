@@ -262,13 +262,13 @@ npm run build</code></pre>
         document.body.appendChild(temp);
         try {
           return await new Promise((resolve, reject) => {
-            const onResult = (data) => {
+            const onResult = (event) => {
               temp.removeEventListener('EMBEDDING-RESULT', onResult);
-              resolve(data.vector);
+              resolve(event.detail.vector);
             };
-            const onError = (data) => {
+            const onError = (event) => {
               temp.removeEventListener('EMBEDDING-ERROR', onError);
-              reject(new Error(data.error));
+              reject(new Error(event.detail.error));
             };
             temp.addEventListener('EMBEDDING-RESULT', onResult);
             temp.addEventListener('EMBEDDING-ERROR', onError);

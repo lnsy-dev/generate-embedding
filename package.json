@@ -1,6 +1,6 @@
 {
   "name": "generate-embedding",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Browser-native sentence embeddings as a custom element (all-MiniLM-L6-v2, Transformers.js, Web Worker)",
   "main": "dist/main.min.js",
   "type": "module",
