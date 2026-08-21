@@ -1,0 +1,22 @@
+/**
+ * Generate Embedding Component Styles
+ *
+ * Styles for <generate-embedding> (src/generate-embedding.js).
+ * The component embeds its own text content, so it renders like a normal
+ * block of text; the demo's editable region gets a subtle outline.
+ */
+
+generate-embedding {
+  display: block;
+  padding: 0.5rem;
+}
+
+generate-embedding[contenteditable] {
+  border: 1px dashed color-mix(in srgb, var(--highlight-color) 40%, transparent);
+  border-radius: 4px;
+  outline: none;
+}
+
+generate-embedding[contenteditable]:focus {
+  border-style: solid;
+}

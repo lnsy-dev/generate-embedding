@@ -1,0 +1,70 @@
+{
+  "name": "generate-embedding",
+  "version": "1.0.0",
+  "description": "WASM based all-mini vector word embedding module",
+  "main": "dist/main.min.js",
+  "type": "module",
+  "author": "LNSY <lindsey.mysse@gmail.com>",
+  "license": "Unlicense",
+  "keywords": [
+    "web-workers",
+    "webassembly",
+    "custom-elements",
+    "vanilla-js",
+    "dataroom-js",
+    "webpack",
+    "embeddings"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lnsy-dev/generate-embedding.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lnsy-dev/generate-embedding/issues"
+  },
+  "homepage": "https://github.com/lnsy-dev/generate-embedding#readme",
+  "files": [
+    "dist/main.min.js",
+    "dist/generate-embedding-worker.js",
+    "dist/chunks/",
+    "dist/*.mjs",
+    "dist/index.html",
+    "src/",
+    "styles/",
+    "index.js",
+    "index.css",
+    "index.html"
+  ],
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:unit": "vitest run",
+    "test:prod": "npm run build && playwright test --project=production",
+    "start": "webpack serve",
+    "build": "NODE_ENV=production webpack build",
+    "postinstall": "node scripts/download-model.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "dataroom-js": "^1.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@swc/core": "^1.9.3",
+    "copy-webpack-plugin": "^14.0.0",
+    "css-loader": "^7.1.2",
+    "cssnano": "^8.0.1",
+    "dotenv": "17.4.2",
+    "html-webpack-plugin": "^5.6.7",
+    "mini-css-extract-plugin": "^2.9.2",
+    "postcss": "^8.5.15",
+    "postcss-loader": "^8.2.0",
+    "style-loader": "^4.0.0",
+    "swc-loader": "^0.2.6",
+    "vitest": "^4.1.11",
+    "webpack": "^5.107.0",
+    "webpack-cli": "^7.0.2",
+    "webpack-dev-server": "^5.2.4"
+  }
+}

@@ -1,0 +1,194 @@
+/**
+ * Tutorial Page Styles
+ *
+ * Styles for the interactive tutorial in index.html.
+ */
+
+header {
+  margin-bottom: 2rem;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  color: var(--trinary-color);
+  margin-top: -0.5rem;
+}
+
+main section {
+  margin-bottom: 2.5rem;
+}
+
+h2 {
+  font-size: var(--h2-font-size);
+  color: var(--foreground-color);
+  border-bottom: 2px solid var(--highlight-color);
+  padding-bottom: 0.25rem;
+}
+
+h3 {
+  font-size: var(--h3-font-size);
+  color: var(--foreground-color);
+}
+
+a {
+  color: var(--notification-color);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--foreground-color);
+}
+
+pre,
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95em;
+}
+
+pre {
+  background-color: var(--secondary-color);
+  border-left: 4px solid var(--highlight-color);
+  border-radius: 4px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+code {
+  background-color: var(--secondary-color);
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--quaternary-color);
+}
+
+th {
+  background-color: var(--secondary-color);
+  color: var(--foreground-color);
+}
+
+.demo {
+  background-color: var(--secondary-color);
+  border: 1px solid var(--quaternary-color);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.demo label {
+  display: block;
+  font-weight: 600;
+  margin: 0.75rem 0 0.25rem;
+  color: var(--trinary-color);
+}
+
+.demo label:first-child {
+  margin-top: 0;
+}
+
+.two-up {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .two-up {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+output {
+  display: block;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background-color: var(--background-color);
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95rem;
+}
+
+output.big {
+  font-size: 1.25rem;
+  text-align: center;
+  padding: 0.75rem;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid var(--quaternary-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--foreground-color);
+  box-sizing: border-box;
+}
+
+button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: var(--foreground-color);
+  color: var(--background-color);
+  border: none;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: var(--notification-color);
+}
+
+#corpus {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#corpus li {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--background-color);
+  border-radius: 4px;
+}
+
+#corpus generate-embedding {
+  padding: 0;
+}
+
+#search-results {
+  min-height: 2rem;
+  padding-left: 1.25rem;
+}
+
+#search-results li {
+  margin-bottom: 0.25rem;
+}
+
+.error {
+  color: var(--error-color);
+}
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--quaternary-color);
+  color: var(--trinary-color);
+  text-align: center;
+}

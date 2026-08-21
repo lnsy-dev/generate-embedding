@@ -1,0 +1,33 @@
+/*
+  *** begin ascii art ***
+  
+   _    _____    ____  _______    ____  __    ___________
+  | |  / /   |  / __ \/  _/   |  / __ )/ /   / ____/ ___/
+  | | / / /| | / /_/ // // /| | / __  / /   / __/  \__ \
+  | |/ / ___ |/ _, _// // ___ |/ /_/ / /___/ /___ ___/ /
+  |___/_/  |_/_/ |_/___/_/  |_/_____/_____/_____//____/
+  
+  *** end ascii art ***
+  
+  Most aesthethic options should live here for adjustment
+*/
+
+
+:root {
+  --background-color: #fcf9f0;
+  --foreground-color: #0a5c0a;
+  --highlight-color: #b3d9b6;
+  --secondary-color: #ede9d7;
+  --trinary-color: #8aa38a;
+  --quaternary-color: #d4cfbd;
+  --confirmation-color: #0a5c0a;
+  --notification-color: #377c43;
+  --inactive-color: #cccccc;
+  --warning-color: #639e71;
+  --error-color: #ff6b6b;
+  --neutral-color: #1c3320;
+  --h1-font-size: 200%;
+  --h2-font-size: 180%;
+  --h3-font-size: 150%;
+
+}
