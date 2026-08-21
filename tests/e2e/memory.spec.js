@@ -100,7 +100,7 @@ test.describe('memory profiling', () => {
   test('adding and removing <generate-embedding> does not leak memory', async ({ page }) => {
     test.setTimeout(5 * 60 * 1000);
 
-    await page.goto('/?embedBackend=wasm');
+    await page.goto('/demo.html?embedBackend=wasm');
 
     // Warm-up: let the demo element complete its first embedding so
     // one-time allocations (module init, tokenizer caches) precede the

@@ -1,7 +1,7 @@
 /**
  * Generate Embedding Component E2E Tests
  *
- * End-to-end tests for <generate-embedding> against the demo page:
+ * End-to-end tests for <generate-embedding> against `demo.html`:
  *   - initial innerText is embedded into a 384-dim `vector` attribute
  *   - EMBEDDING-RESULT events fire with the vector
  *   - editing the text re-embeds (debounced)
@@ -40,7 +40,7 @@ async function waitForVector(page, previousVector = null) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/?embedBackend=wasm');
+  await page.goto('/demo.html?embedBackend=wasm');
 });
 
 test.describe('generate-embedding component', () => {

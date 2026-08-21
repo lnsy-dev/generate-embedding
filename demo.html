@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>generate-embedding demo</title>
+</head>
+
+<body>
+  <h1>generate-embedding</h1>
+  <p>Minimal demo page used by the Playwright test suite.</p>
+
+  <section id="generate-embedding-demo">
+    <h2>Generate Embedding</h2>
+    <generate-embedding id="generate_embedding" contenteditable="true">The quick brown fox jumps over the lazy dog.</generate-embedding>
+    <p id="embedding_output" class="embeddings-result">Waiting for embedding…</p>
+  </section>
+
+  <script>
+    setTimeout(() => {
+      if (typeof generate_embedding !== 'undefined' && generate_embedding.on) {
+        generate_embedding.on('EMBEDDING-RESULT', (data) => {
+          const preview = data.vector.slice(0, 8).map((n) => n.toFixed(4)).join(', ');
+          embedding_output.textContent = `384 dims in ${data.duration} ms — [${preview}…]`;
+          console.log('[Main Thread] Embedding result:', data);
+        });
+        generate_embedding.on('EMBEDDING-STATUS', (data) => {
+          console.log('[Main Thread] Embedder status:', data);
+        });
+        generate_embedding.on('EMBEDDING-ERROR', (data) => {
+          embedding_output.textContent = `Embedding error: ${data.error}`;
+        });
+      }
+    }, 1000);
+  </script>
+</body>
+
+</html>

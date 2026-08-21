@@ -53,7 +53,7 @@ npm start</code></pre>
       </p>
 
       <div class="demo">
-        <generate-embedding id="demo-text" contenteditable="true">
+        <generate-embedding id="generate_embedding" contenteditable="true">
           The quick brown fox jumps over the lazy dog.
         </generate-embedding>
         <output id="demo-output">Waiting for embedding…</output>
@@ -195,7 +195,7 @@ npm run build</code></pre>
       // ----------------------------------------------------------------------
       // Step 1 demo: show the embedding preview.
       // ----------------------------------------------------------------------
-      const demoText = document.getElementById('demo-text');
+      const demoText = document.getElementById('generate_embedding');
       const demoOutput = document.getElementById('demo-output');
 
       if (demoText && demoText.on) {

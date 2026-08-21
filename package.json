@@ -1,9 +1,16 @@
 {
   "name": "generate-embedding",
   "version": "1.0.0",
-  "description": "WASM based all-mini vector word embedding module",
+  "description": "Browser-native sentence embeddings as a custom element (all-MiniLM-L6-v2, Transformers.js, Web Worker)",
   "main": "dist/main.min.js",
   "type": "module",
+  "exports": {
+    ".": "./dist/main.min.js",
+    "./worker": "./dist/generate-embedding-worker.js",
+    "./lib": "./src/lib/embeddings.js",
+    "./styles/*": "./styles/*"
+  },
+  "sideEffects": true,
   "author": "LNSY <lindsey.mysse@gmail.com>",
   "license": "Unlicense",
   "keywords": [
@@ -13,7 +20,9 @@
     "vanilla-js",
     "dataroom-js",
     "webpack",
-    "embeddings"
+    "embeddings",
+    "transformers.js",
+    "all-MiniLM-L6-v2"
   ],
   "repository": {
     "type": "git",
@@ -28,6 +37,7 @@
     "dist/generate-embedding-worker.js",
     "dist/chunks/",
     "dist/*.mjs",
+    "dist/*.wasm",
     "dist/index.html",
     "src/",
     "styles/",

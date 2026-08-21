@@ -195,6 +195,7 @@ export default {
   plugins: [
     new HtmlWebpackPlugin({
       template: './index.html',
+      filename: 'index.html',
       /**
        * Only inject the main entry into index.html. The worker entry is
        * loaded at runtime via new Worker('/generate-embedding-worker.js');
@@ -202,6 +203,11 @@ export default {
        * main thread (Window context) and break the request/response
        * protocol.
        */
+      chunks: ['main'],
+    }),
+    new HtmlWebpackPlugin({
+      template: './demo.html',
+      filename: 'demo.html',
       chunks: ['main'],
     }),
     ...(separateCss ? [new MiniCssExtractPlugin()] : []),

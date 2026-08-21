@@ -4,6 +4,83 @@
 
 `<generate-embedding>` is a vanilla-JS custom element that watches its own text, sends it to a dedicated web worker, and emits a sentence embedding using the lightweight [all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2) model (via [Transformers.js](https://huggingface.co/docs/transformers.js)). It prefers WebGPU when available and falls back to WASM, so everything stays on the client.
 
+---
+
+## Install from npm
+
+```bash
+npm install generate-embedding
+```
+
+`npm install` runs a postinstall script that downloads the model weights (~68 MB) and ONNX Runtime wasm binaries into `node_modules/generate-embedding/models/` and `node_modules/generate-embedding/ort/`. Set `GENERATE_EMBEDDING_SKIP_MODEL_DOWNLOAD=1` to skip the download — the component will fetch the model from the Hugging Face hub on first use instead.
+
+Import the package once in your app to register the custom element and inject its styles:
+
+```javascript
+import 'generate-embedding';
+```
+
+Then use the element in HTML:
+
+```html
+<generate-embedding contenteditable="true">
+  The quick brown fox jumps over the lazy dog.
+</generate-embedding>
+```
+
+### Serving the worker, models, and ORT files
+
+The component loads three things over HTTP at runtime:
+
+1. `/generate-embedding-worker.js` — the embedding web worker.
+2. `/models/` — the locally downloaded model weights.
+3. `/ort/` — the ONNX Runtime wasm binaries.
+
+You must copy these from `node_modules/generate-embedding/` into your public / static folder so they are served at those paths:
+
+```bash
+# Example: copy into a Vite / webpack public directory
+cp node_modules/generate-embedding/dist/generate-embedding-worker.js public/
+cp node_modules/generate-embedding/dist/*.mjs public/
+cp node_modules/generate-embedding/dist/*.wasm public/
+cp -r node_modules/generate-embedding/models public/
+cp -r node_modules/generate-embedding/ort public/
+```
+
+If you serve the package from a sub-path or a CDN, override the URLs with attributes:
+
+```html
+<generate-embedding
+  worker-url="/assets/generate-embedding-worker.js"
+  model-path="/assets/models/"
+  ort-path="/assets/ort/"
+  contenteditable="true"
+>
+  Edit me.
+</generate-embedding>
+```
+
+If the worker or model files are not served, the component still works: Transformers.js falls back to fetching the model from the Hugging Face hub and the worker falls back to CDN-hosted ONNX Runtime binaries. The offline / self-hosted guarantee only applies when the files are served locally.
+
+### Programmatic API
+
+After importing the package, the embeddings client is available on `window.embeddings` for debugging and advanced use:
+
+```javascript
+import 'generate-embedding';
+
+const { embedTexts, cosineSimilarity, getEmbedderStatus } = window.embeddings;
+
+const vectors = await embedTexts(['hello world', 'goodbye world']);
+console.log(cosineSimilarity(vectors[0], vectors[1]));
+```
+
+You can also import the client module directly if your bundler handles the bare imports:
+
+```javascript
+import { embedTexts, cosineSimilarity } from 'generate-embedding/lib';
+```
+
 In this tutorial you will:
 
 1. Get the project running locally.
@@ -21,7 +98,9 @@ In this tutorial you will:
 - A Chromium-based browser for tests (Playwright); runtime works in any modern browser
 - About 100 MB of disk space for model weights and ONNX Runtime binaries
 
-## Quick start
+## Quick start (clone and hack)
+
+To run the source repo locally:
 
 ```bash
 git clone https://github.com/lnsy-dev/generate-embedding.git
@@ -31,6 +110,40 @@ npm start            # opens the dev server on http://localhost:3000
 ```
 
 The first `npm install` runs a postinstall script. If you want to skip the local download, set `GENERATE_EMBEDDING_SKIP_MODEL_DOWNLOAD=1`; the component will fetch the model from the Hugging Face hub the first time it runs instead.
+
+### Bundler examples
+
+**webpack**
+
+Copy the worker, wasm, model, and ORT assets to your output directory with `CopyWebpackPlugin`:
+
+```javascript
+new CopyWebpackPlugin({
+  patterns: [
+    { from: 'node_modules/generate-embedding/dist/generate-embedding-worker.js', to: 'generate-embedding-worker.js' },
+    { from: 'node_modules/generate-embedding/dist/*.mjs', to: '[name][ext]' },
+    { from: 'node_modules/generate-embedding/dist/*.wasm', to: '[name][ext]' },
+    { from: 'node_modules/generate-embedding/models', to: 'models' },
+    { from: 'node_modules/generate-embedding/ort', to: 'ort' },
+  ],
+});
+```
+
+**Vite**
+
+Use `vite-plugin-static-copy` or a post-build script to copy the same files into `public/` or `dist/`.
+
+**Static / no bundler**
+
+If you are writing plain HTML, copy the assets manually and import the bundle from a CDN or relative path:
+
+```html
+<script type="module">
+  import 'https://unpkg.com/generate-embedding';
+</script>
+```
+
+> Note: CDN usage still requires the worker, models, and ORT files to be served. The easiest path for static sites is to copy the files from `node_modules/generate-embedding/` into your site root as shown above.
 
 ---
 
