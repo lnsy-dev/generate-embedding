@@ -1,8 +1,38 @@
-# generate-embedding tutorial
+# generate-embedding
 
 > Turn any text on a web page into a 384-dimensional sentence embedding — locally, in the browser, with no API key.
 
 `<generate-embedding>` is a vanilla-JS custom element that watches its own text, sends it to a dedicated web worker, and emits a sentence embedding using the lightweight [all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2) model (via [Transformers.js](https://huggingface.co/docs/transformers.js)). It prefers WebGPU when available and falls back to WASM, so everything stays on the client.
+
+---
+
+## Features
+
+**Embedding**
+
+- Turns any element's text into a 384-dimensional, L2-normalized sentence embedding — fully in the browser: no API key, no server, text never leaves the client.
+- Watches its own content (including live `contenteditable` typing) and re-embeds automatically on a configurable debounce.
+- Publishes every result twice: a JSON `vector` attribute on the element and an `EMBEDDING-RESULT` DOM event.
+
+**Performance**
+
+- All inference runs in a dedicated Web Worker — the UI thread never blocks.
+- WebGPU (fp16) when available with automatic WASM (q8) fallback; force either with the `backend` attribute.
+- One shared, reference-counted worker serves every element on the page; when the last element disconnects, the worker is terminated and the model runtime is freed from memory.
+
+**Persistence & APIs**
+
+- Embeddings persist in markup (`generated` + `vector` attributes): a reload restores them instantly with `cached: true`, without even starting the worker — ideal for static sites and server-rendered pages.
+- Programmatic client at `window.embeddings` (or `import from 'generate-embedding/lib'`): `embedTexts()`, `cosineSimilarity()`, `getEmbedderStatus()`, `onProgress()`.
+- Lifecycle events for status, download progress, results, and errors (`EMBEDDING-STATUS`, `EMBEDDING-PROGRESS`, `EMBEDDING-RESULT`, `EMBEDDING-ERROR`).
+
+**Integration & deployment**
+
+- Framework-agnostic custom element — no Shadow DOM, styles auto-injected; drop it into plain HTML or any framework.
+- Attribute-driven configuration: `worker-url`, `model-path`, `ort-path`, `backend`, `debounce`.
+- Self-hosted by default (same-origin worker + model files), with automatic fallback to the Hugging Face hub / CDN when they are not served; relative URLs keep it sub-path friendly (GitHub Pages, CDNs).
+- Single-file, self-contained worker bundle — hosts copy exactly one JS file plus the model/ORT assets.
+- Ready-made building blocks for semantic search, similarity comparison, clustering, and RAG-style features over the same 384-dim space.
 
 ---
 
