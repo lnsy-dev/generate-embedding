@@ -60,7 +60,7 @@
           contenteditable="true"
           worker-url="./generate-embedding-worker.js"
           model-path="./models/"
-          ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+          ort-path="./ort/"
         >The quick brown fox jumps over the lazy dog.</generate-embedding>
 
         <output id="live-output" class="big">Waiting for the model…</output>
@@ -87,7 +87,7 @@
             contenteditable="true"
             worker-url="./generate-embedding-worker.js"
             model-path="./models/"
-            ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+            ort-path="./ort/"
           >A cat naps in the afternoon sun.</generate-embedding>
         </div>
         <div>
@@ -97,7 +97,7 @@
             contenteditable="true"
             worker-url="./generate-embedding-worker.js"
             model-path="./models/"
-            ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+            ort-path="./ort/"
           >A kitten sleeps in the sunshine.</generate-embedding>
         </div>
       </div>
@@ -126,27 +126,27 @@
           <li><generate-embedding
                 worker-url="./generate-embedding-worker.js"
                 model-path="./models/"
-                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+                ort-path="./ort/"
               >A cat naps in the sun.</generate-embedding></li>
           <li><generate-embedding
                 worker-url="./generate-embedding-worker.js"
                 model-path="./models/"
-                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+                ort-path="./ort/"
               >The stock market closed lower today.</generate-embedding></li>
           <li><generate-embedding
                 worker-url="./generate-embedding-worker.js"
                 model-path="./models/"
-                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+                ort-path="./ort/"
               >How do I bake sourdough bread?</generate-embedding></li>
           <li><generate-embedding
                 worker-url="./generate-embedding-worker.js"
                 model-path="./models/"
-                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+                ort-path="./ort/"
               >The pitcher threw a curveball in the ninth inning.</generate-embedding></li>
           <li><generate-embedding
                 worker-url="./generate-embedding-worker.js"
                 model-path="./models/"
-                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+                ort-path="./ort/"
               >Yeast needs warmth and time to make dough rise.</generate-embedding></li>
         </ul>
 
@@ -164,20 +164,24 @@
       <h2><span class="glyph">⚑</span> How this page is deployed</h2>
       <p>
         This demo is built by <code>npm run build:docs</code> into
-        <code>docs/</code> and served by GitHub Pages as plain static files.
-        Only two committed artifacts are needed:
+        <code>docs/</code> and served by GitHub Pages as plain static files —
+        fully self-hosted. Every request the page makes stays on the same
+        origin, so CORS can never interfere and nothing is fetched from a
+        third-party CDN or the Hugging Face hub at runtime. The committed
+        artifacts are:
       </p>
       <ul>
         <li><code>main.min.js</code> — the bundle that registers
           <code>&lt;generate-embedding&gt;</code> and injects its styles</li>
         <li><code>generate-embedding-worker.js</code> — the self-contained
           embedding worker (Transformers.js + ONNX Runtime inlined)</li>
+        <li><code>models/</code> — the all-MiniLM-L6-v2 weights (q8 for the
+          WASM backend, fp16 for WebGPU)</li>
+        <li><code>ort/</code> — the ONNX Runtime wasm binaries</li>
       </ul>
       <p>
-        Both are loaded with <em>relative</em> URLs so the page works from a
-        project sub-path (<code>user.github.io/repo/</code>). The ~68&nbsp;MB
-        model weights and ORT wasm binaries are <em>not</em> committed;
-        instead the component's documented fallbacks supply them at runtime:
+        All four are loaded with <em>relative</em> URLs so the page works
+        from a project sub-path (<code>example.com/repo/</code>):
       </p>
       <table>
         <thead>
@@ -192,21 +196,24 @@
           <tr>
             <td><code>model-path</code></td>
             <td><code>./models/</code></td>
-            <td>falls back to the Hugging Face hub (~24&nbsp;MB q8 weights, cached in Cache Storage after the first load)</td>
+            <td>same origin — committed model weights (q8 + fp16)</td>
           </tr>
           <tr>
             <td><code>ort-path</code></td>
-            <td><code>cdn.jsdelivr.net/npm/onnxruntime-web@…/dist/</code></td>
-            <td>ONNX Runtime wasm binaries (all backend variants; the <code>transformers</code> package itself only ships the WebGPU/jsep glue)</td>
+            <td><code>./ort/</code></td>
+            <td>same origin — committed ONNX Runtime wasm binaries</td>
           </tr>
         </tbody>
       </table>
       <p>
-        To make the demo fully self-hosted, copy the downloaded assets into
-        <code>docs/</code> before publishing:
+        The assets are produced by the package's postinstall download
+        (<code>models/</code> and <code>ort/</code> at the repo root) and
+        copied into <code>docs/</code> by <code>npm run build:docs</code>.
+        If you host the demo somewhere that binary assets are awkward, the
+        component still works without them — it then falls back to the
+        Hugging Face hub and a CDN — but self-hosting keeps the demo fast
+        and free of cross-origin requests.
       </p>
-      <pre><code>cp -r models docs/models
-cp -r ort docs/ort</code></pre>
       <p>
         The same three attributes work in any host page — see the
         <a href="https://github.com/lnsy-dev/generate-embedding#readme">README</a>

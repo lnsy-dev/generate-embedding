@@ -195,25 +195,19 @@ download progress — all as static files. Rebuild it after changes with:
 npm run build:docs   # webpack --config webpack.docs.config.js → docs/
 ```
 
-The build emits two committed artifacts (`docs/main.min.js` and
-`docs/generate-embedding-worker.js`, loaded with relative URLs so they work
-from a project sub-path). The ~68 MB model weights and ORT wasm binaries are
-not committed: `model-path="./models/"` falls back to the Hugging Face hub,
-and `ort-path` points at the `onnxruntime-web` package on the jsdelivr CDN
-(use that package rather than `@huggingface/transformers` — the published
-transformers dist only ships the WebGPU/jsep ORT glue, so WASM-backend
-fetches 404 there). To publish a fully self-hosted
-demo instead, copy the downloaded assets in before committing:
+The build emits four committed artifacts — `docs/main.min.js`,
+`docs/generate-embedding-worker.js`, and copies of `models/` and `ort/`
+(minus the experimental JSPI ORT variant) — so the demo is **fully
+self-hosted**: every request stays same-origin, nothing is fetched from a
+CDN or the Hugging Face hub at runtime, and CORS can never interfere. All
+assets are loaded with relative URLs so they work from a project sub-path
+like `example.com/repo/`.
 
-```bash
-cp -r models docs/models
-cp -r ort docs/ort
-```
-
-To deploy, enable GitHub Pages for the repo (Settings → Pages) and choose
-"Deploy from a branch" with the `/docs` folder. The demo is covered by
-`tests/e2e/docs-demo.spec.js`, which serves `docs/` from a sub-path and
-exercises all three widgets.
+Note the repo-root ignore rules are anchored (`/models/`, `/ort/`) so the
+committed `docs/models/` and `docs/ort/` copies are tracked. The demo is
+covered by `tests/e2e/docs-demo.spec.js`, which serves `docs/` from a
+sub-path, aborts every cross-origin request, and exercises all three
+widgets.
 
 ---
 

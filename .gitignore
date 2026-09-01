@@ -148,9 +148,12 @@ playwright/.cache/
 *.o
 *.a
 
-# Downloaded embedding model + ORT runtime (populated by postinstall)
-models/
-ort/
+# Downloaded embedding model + ORT runtime (populated by postinstall).
+# Anchored to the repo root: the docs demo intentionally commits a copy of
+# both under docs/models/ and docs/ort/ so the GitHub Pages demo is fully
+# self-hosted (no CDN / Hugging Face hub traffic, no CORS).
+/models/
+/ort/
 
 # Production build output
 dist/

@@ -1,10 +1,32 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import webpack from 'webpack';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import baseConfig from './webpack.config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+/**
+ * Repo-root asset directories downloaded by the postinstall script. They are
+ * copied into docs/ so the GitHub Pages demo is fully self-hosted: every
+ * request (page, worker, model weights, ORT wasm binaries) stays same-origin
+ * and CORS can never enter the picture.
+ */
+const hasModels = fs.existsSync(path.resolve(__dirname, 'models'));
+const hasOrt = fs.existsSync(path.resolve(__dirname, 'ort'));
+
+/**
+ * Prune the experimental JSPI ORT variant from the copied runtime. It is
+ * only used when JavaScript Promise Integration is explicitly enabled, so
+ * the plain, asyncify, and jsep variants cover both the WASM and WebGPU
+ * backends.
+ *
+ * @param {string} assetPath - Source path of the file being copied
+ * @returns {boolean} False when the file should be skipped
+ */
+const skipJspi = (assetPath) => !assetPath.includes('.jspi.');
 
 /**
  * Prune fallback wasm/mjs assets from the docs build.
@@ -53,12 +75,10 @@ class PruneOrtFallbackAssetsPlugin {
  *   - LimitChunkCountPlugin merges the dynamic @huggingface/transformers
  *     chunk into the worker entry, so the worker is a single
  *     self-contained file with no importScripts() chunk loading
+ *   - models/ and ort/ are copied in, making the demo fully self-hosted:
+ *     zero cross-origin requests, no CDN, no Hugging Face hub fallback
  *   - no HtmlWebpackPlugin: docs/index.html is hand-written and loads
  *     ./main.min.js with a relative URL
- *   - no CopyWebpackPlugin: the ~140 MB models/ and ort/ directories are
- *     NOT copied. The demo relies on the documented fallbacks (Hugging
- *     Face hub for model weights, jsdelivr CDN for ORT wasm binaries)
- *     unless a self-hosted copy is placed in docs/models/ and docs/ort/.
  *
  * Usage: npm run build:docs
  */
@@ -76,6 +96,18 @@ export default {
     // single generate-embedding-worker.js with the whole transformers
     // runtime inlined.
     new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+    // Self-hosted runtime assets: model weights (q8 for WASM, fp16 for
+    // WebGPU) and ORT wasm binaries, minus the experimental JSPI variant.
+    ...(hasModels || hasOrt
+      ? [
+          new CopyWebpackPlugin({
+            patterns: [
+              ...(hasModels ? [{ from: 'models', to: 'models' }] : []),
+              ...(hasOrt ? [{ from: 'ort', to: 'ort', filter: skipJspi }] : []),
+            ],
+          }),
+        ]
+      : []),
     new PruneOrtFallbackAssetsPlugin(),
   ],
 };

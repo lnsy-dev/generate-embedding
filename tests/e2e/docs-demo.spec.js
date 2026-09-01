@@ -4,11 +4,13 @@
  * Verifies that the static demo built into docs/ (npm run build:docs)
  * works when served as plain static files from a sub-path — exactly how
  * GitHub Pages project sites are served
- * (https://<user>.github.io/<repo>/docs or /<repo>/):
+ * (https://<user>.github.io/<repo>/ or a custom domain path):
  *   - main.min.js and the worker are loaded with relative URLs
- *   - model-path="./models/" resolves against the sub-path
- *   - ort-path points at the jsdelivr CDN (fulfilled from the local ort/
- *     directory here, so the test is hermetic — no network access needed)
+ *   - model-path="./models/" and ort-path="./ort/" resolve against the
+ *     sub-path and are served same-origin from the committed docs/models/
+ *     and docs/ort/ directories
+ *   - the demo makes ZERO cross-origin requests: no CDN, no Hugging Face
+ *     hub, so CORS can never interfere
  *
  * The demo page itself is tested: live embedding, cosine similarity,
  * semantic search, and the persisted-markup display.
@@ -23,10 +25,6 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..', '..');
-
-/** Repo-local directories standing in for the CDN / self-hosted assets. */
-const ortDir = path.join(repoRoot, 'ort');
-const modelsDir = path.join(repoRoot, 'models');
 
 /** Static file server port (distinct from the dev-server E2E port 3737). */
 const DOCS_PORT = 3838;
@@ -46,8 +44,7 @@ const MIME_TYPES = {
 };
 
 /**
- * Resolve a URL path to a repo file, applying the /docs/models/ → models/
- * mapping that simulates self-hosted model files inside docs/.
+ * Resolve a URL path to a repo file.
  *
  * @param {string} urlPath - Decoded URL path (no query string)
  * @returns {string|null} Absolute file path, or null when not found
@@ -57,11 +54,6 @@ function resolveRepoFile(urlPath) {
   if (relative === '' || relative.endsWith('/')) {
     relative += 'index.html';
   }
-  // The demo requests ./models/ relative to the worker URL, i.e.
-  // /docs/models/…; serve the repo's downloaded model files there.
-  if (relative.startsWith('docs/models/')) {
-    relative = relative.replace(/^docs\//, '');
-  }
   const candidate = path.join(repoRoot, relative);
   if (!candidate.startsWith(repoRoot) || !existsSync(candidate) || !statSync(candidate).isFile()) {
     return null;
@@ -69,6 +61,19 @@ function resolveRepoFile(urlPath) {
   return candidate;
 }
 
+/**
+ * Origins allowed to receive cross-origin requests. Only the theme's
+ * Google Fonts (cosmetic, loaded via CSS @import) — never the embedding
+ * pipeline, which is fully self-hosted.
+ *
+ * @type {RegExp[]}
+ */
+const FONT_ORIGINS = [
+  /^https:\/\/fonts\.googleapis\.com\//,
+  /^https:\/\/fonts\.gstatic\.com\//,
+];
+
+/** @type {http.Server|null} Static server serving the repo root */
 let server;
 
 test.beforeAll(async () => {
@@ -92,30 +97,35 @@ test.afterAll(async () => {
   await new Promise((resolve) => server.close(resolve));
 });
 
+/**
+ * Cross-origin requests attempted by the page during the current test.
+ * The self-hosted demo must never make any; afterEach fails if it did.
+ *
+ * @type {string[]}
+ */
+let crossOriginRequests;
+
 test.beforeEach(async ({ page }) => {
-  // ORT wasm binaries come from the jsdelivr CDN on the demo page; fulfill
-  // those requests from the repo's ort/ directory so the test runs hermetically.
-  await page.route('**cdn.jsdelivr.net/**', async (route) => {
-    const url = new URL(route.request().url());
-    const file = path.join(ortDir, path.basename(url.pathname));
-    if (!existsSync(file)) {
-      await route.fulfill({ status: 404, body: 'not found' });
+  crossOriginRequests = [];
+
+  // Abort and record every request that leaves the test origin, except the
+  // theme webfonts. Any pipeline hit here means an accidental dependency on
+  // a CDN or the Hugging Face hub slipped back in.
+  await page.route('**/*', (route) => {
+    const url = route.request().url();
+    if (new URL(url).origin !== BASE_URL && !FONT_ORIGINS.some((pattern) => pattern.test(url))) {
+      crossOriginRequests.push(url);
+      route.abort();
       return;
     }
-    await route.fulfill({
-      status: 200,
-      contentType: MIME_TYPES[path.extname(file)] ?? 'application/octet-stream',
-      body: readFileSync(file),
-    });
-  });
-
-  // Guard against accidental Hugging Face hub fetches: the model should be
-  // served from the (mapped) local models/ directory.
-  await page.route('**huggingface.co/**', async (route) => {
-    await route.abort();
+    route.continue();
   });
 
   await page.goto(`${BASE_URL}/docs/?embedBackend=wasm`);
+});
+
+test.afterEach(async () => {
+  expect(crossOriginRequests, 'demo must not make cross-origin requests').toEqual([]);
 });
 
 test.describe('GitHub Pages demo (docs/)', () => {
