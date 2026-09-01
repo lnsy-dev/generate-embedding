@@ -1,0 +1,129 @@
+/*
+  Demo Page Styles
+
+  Styles for the GitHub Pages demo in docs/index.html. The demo bundle
+  reuses index.css (variables, component, and tutorial styles), so every
+  rule here is scoped under body.docs-demo to avoid leaking into the
+  tutorial page.
+*/
+
+/* ── Layout ─────────────────────────────────────────────── */
+
+body.docs-demo {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+body.docs-demo header {
+  padding: var(--rhythm-lg) 0 var(--rhythm-md);
+  border-bottom: 1px solid var(--color-rule);
+  margin-bottom: var(--rhythm-md);
+}
+
+body.docs-demo nav {
+  margin-top: var(--rhythm-sm);
+  font-family: var(--font-header);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: calc(var(--type-body) * 0.85);
+}
+
+body.docs-demo nav a {
+  margin-right: var(--rhythm-sm);
+  white-space: nowrap;
+}
+
+body.docs-demo footer {
+  border-top: 1px solid var(--color-rule);
+  margin-top: var(--rhythm-lg);
+  padding-top: var(--rhythm-sm);
+  color: var(--muted);
+  font-size: calc(var(--type-body) * 0.9);
+}
+
+body.docs-demo section {
+  margin: var(--rhythm-lg) 0;
+}
+
+/* ── Status bar ─────────────────────────────────────────── */
+
+body.docs-demo .status-demo {
+  padding: var(--rhythm-sm) var(--rhythm-md);
+}
+
+body.docs-demo .status-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--rhythm-xs);
+  font-family: var(--font-header);
+  font-size: calc(var(--type-body) * 0.9);
+  letter-spacing: 0.04em;
+}
+
+body.docs-demo #status-progress {
+  color: var(--muted);
+}
+
+body.docs-demo .progress-track {
+  margin-top: var(--rhythm-xs);
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-rule);
+  overflow: hidden;
+}
+
+body.docs-demo .progress-fill {
+  height: 100%;
+  width: 0;
+  background-color: var(--color-link);
+  transition: width 0.2s ease;
+}
+
+/* ── Similarity meter ───────────────────────────────────── */
+
+body.docs-demo .sim-meter {
+  margin-top: var(--rhythm-sm);
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-rule);
+  overflow: hidden;
+}
+
+body.docs-demo .sim-fill {
+  height: 100%;
+  width: 0;
+  background-color: var(--color-link);
+  transition: width 0.3s ease;
+}
+
+body.docs-demo .sim-hint {
+  margin-top: var(--rhythm-xs);
+  color: var(--muted);
+  font-size: calc(var(--type-body) * 0.85);
+  text-align: center;
+}
+
+/* ── Search results ─────────────────────────────────────── */
+
+body.docs-demo #search-results li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--rhythm-sm);
+  padding: var(--rhythm-xs) 0;
+  border-bottom: 1px dotted var(--color-rule);
+}
+
+body.docs-demo #search-results li.best .result-score {
+  color: var(--color-link);
+}
+
+body.docs-demo #search-results .result-score {
+  font-variant-numeric: tabular-nums;
+}
+
+body.docs-demo .muted {
+  color: var(--muted);
+}

@@ -52,6 +52,7 @@
     "test:prod": "npm run build && playwright test --project=production",
     "start": "webpack serve",
     "build": "NODE_ENV=production webpack build",
+    "build:docs": "NODE_ENV=production webpack build --config webpack.docs.config.js",
     "postinstall": "node scripts/download-model.js",
     "prepublishOnly": "npm run build"
   },

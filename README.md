@@ -185,6 +185,36 @@ demo.on('EMBEDDING-RESULT', (data) => {
 
 Refresh the page, click the sentence, and edit it. The browser console will show a new vector every time you pause typing.
 
+### Live demo on GitHub Pages
+
+A self-contained, interactive demo lives in `docs/` and is served on GitHub
+Pages: editable embedding, live cosine similarity, semantic search, and model
+download progress — all as static files. Rebuild it after changes with:
+
+```bash
+npm run build:docs   # webpack --config webpack.docs.config.js → docs/
+```
+
+The build emits two committed artifacts (`docs/main.min.js` and
+`docs/generate-embedding-worker.js`, loaded with relative URLs so they work
+from a project sub-path). The ~68 MB model weights and ORT wasm binaries are
+not committed: `model-path="./models/"` falls back to the Hugging Face hub,
+and `ort-path` points at the `onnxruntime-web` package on the jsdelivr CDN
+(use that package rather than `@huggingface/transformers` — the published
+transformers dist only ships the WebGPU/jsep ORT glue, so WASM-backend
+fetches 404 there). To publish a fully self-hosted
+demo instead, copy the downloaded assets in before committing:
+
+```bash
+cp -r models docs/models
+cp -r ort docs/ort
+```
+
+To deploy, enable GitHub Pages for the repo (Settings → Pages) and choose
+"Deploy from a branch" with the `/docs` folder. The demo is covered by
+`tests/e2e/docs-demo.spec.js`, which serves `docs/` from a sub-path and
+exercises all three widgets.
+
 ---
 
 ## Step 2 — Compare sentences with cosine similarity

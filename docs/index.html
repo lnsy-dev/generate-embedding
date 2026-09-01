@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="generate-embedding demo">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Browser-native sentence embeddings as a custom element — a live, self-contained demo.">
+  <meta property="og:site_name" content="generate-embedding">
+  <title>generate-embedding demo</title>
+  <!--
+    GitHub Pages demo. Styles are injected by main.min.js (style-loader);
+    the bundle is loaded with a relative path so the page works when
+    served from a sub-path (https://<user>.github.io/<repo>/).
+  -->
+  <script defer src="./main.min.js"></script>
+</head>
+
+<body class="docs-demo">
+  <header>
+    <h1>generate-embedding</h1>
+    <h4 class="tagline">Turn any text on a web page into a 384-dimensional sentence embedding — locally, in the browser, with no API key.</h4>
+    <nav>
+      <a href="#live">Live embedding</a>
+      <a href="#similarity">Similarity</a>
+      <a href="#search">Search</a>
+      <a href="#notes">How it's deployed</a>
+      <a href="https://github.com/lnsy-dev/generate-embedding">GitHub ↗</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Model status: backend, download progress, errors -->
+    <section id="status" class="demo status-demo" aria-label="Model status">
+      <div id="status-line" class="status-line">
+        <span id="status-backend">Loading model…</span>
+        <span id="status-progress"></span>
+      </div>
+      <div class="progress-track" id="progress-track" hidden>
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <p id="status-error" class="error" hidden></p>
+    </section>
+
+    <!-- 1 · Live embedding -->
+    <section id="live">
+      <h2><span class="glyph">◈</span> Live embedding</h2>
+      <p>
+        The element below watches its own text. Edit it — whenever you pause
+        typing for 300&nbsp;ms it re-embeds and publishes a 384-dimensional
+        vector as its <code>vector</code> attribute and an
+        <code>EMBEDDING-RESULT</code> event. Inference runs in a web worker
+        with the <a href="https://huggingface.co/Xenova/all-MiniLM-L6-v2">all-MiniLM-L6-v2</a>
+        model, so the page never blocks.
+      </p>
+
+      <div class="demo">
+        <generate-embedding
+          id="live-demo"
+          contenteditable="true"
+          worker-url="./generate-embedding-worker.js"
+          model-path="./models/"
+          ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+        >The quick brown fox jumps over the lazy dog.</generate-embedding>
+
+        <output id="live-output" class="big">Waiting for the model…</output>
+
+        <label>Persisted markup (updated live)</label>
+        <pre id="live-markup">&lt;generate-embedding&gt;…&lt;/generate-embedding&gt;</pre>
+      </div>
+    </section>
+
+    <!-- 2 · Similarity -->
+    <section id="similarity">
+      <h2><span class="glyph">∠</span> Cosine similarity</h2>
+      <p>
+        Embeddings are points in 384-dimensional space. Sentences with
+        similar meaning point in the same direction. Edit either sentence
+        and the score updates.
+      </p>
+
+      <div class="demo two-up">
+        <div>
+          <label>Sentence A</label>
+          <generate-embedding
+            id="sim-a"
+            contenteditable="true"
+            worker-url="./generate-embedding-worker.js"
+            model-path="./models/"
+            ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+          >A cat naps in the afternoon sun.</generate-embedding>
+        </div>
+        <div>
+          <label>Sentence B</label>
+          <generate-embedding
+            id="sim-b"
+            contenteditable="true"
+            worker-url="./generate-embedding-worker.js"
+            model-path="./models/"
+            ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+          >A kitten sleeps in the sunshine.</generate-embedding>
+        </div>
+      </div>
+
+      <div class="demo">
+        <output id="sim-score" class="big">—</output>
+        <div class="sim-meter">
+          <div class="sim-fill" id="sim-fill"></div>
+        </div>
+        <p class="sim-hint">0 = unrelated · 1 = same meaning</p>
+      </div>
+    </section>
+
+    <!-- 3 · Semantic search -->
+    <section id="search">
+      <h2><span class="glyph">⌕</span> Semantic search</h2>
+      <p>
+        Every sentence below embeds itself into the same shared space. The
+        query is embedded on demand with <code>window.embeddings.embedTexts()</code>
+        and ranked against the corpus by cosine similarity — no keyword
+        matching involved.
+      </p>
+
+      <div class="demo">
+        <ul id="corpus">
+          <li><generate-embedding
+                worker-url="./generate-embedding-worker.js"
+                model-path="./models/"
+                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+              >A cat naps in the sun.</generate-embedding></li>
+          <li><generate-embedding
+                worker-url="./generate-embedding-worker.js"
+                model-path="./models/"
+                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+              >The stock market closed lower today.</generate-embedding></li>
+          <li><generate-embedding
+                worker-url="./generate-embedding-worker.js"
+                model-path="./models/"
+                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+              >How do I bake sourdough bread?</generate-embedding></li>
+          <li><generate-embedding
+                worker-url="./generate-embedding-worker.js"
+                model-path="./models/"
+                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+              >The pitcher threw a curveball in the ninth inning.</generate-embedding></li>
+          <li><generate-embedding
+                worker-url="./generate-embedding-worker.js"
+                model-path="./models/"
+                ort-path="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/"
+              >Yeast needs warmth and time to make dough rise.</generate-embedding></li>
+        </ul>
+
+        <label for="query-input">Query</label>
+        <input id="query-input" type="text" value="kitten sleeping" autocomplete="off">
+        <button id="search-button" type="button">Search</button>
+
+        <label>Results</label>
+        <ol id="search-results"><li class="muted">Run a search to rank the corpus.</li></ol>
+      </div>
+    </section>
+
+    <!-- 4 · Deployment notes -->
+    <section id="notes">
+      <h2><span class="glyph">⚑</span> How this page is deployed</h2>
+      <p>
+        This demo is built by <code>npm run build:docs</code> into
+        <code>docs/</code> and served by GitHub Pages as plain static files.
+        Only two committed artifacts are needed:
+      </p>
+      <ul>
+        <li><code>main.min.js</code> — the bundle that registers
+          <code>&lt;generate-embedding&gt;</code> and injects its styles</li>
+        <li><code>generate-embedding-worker.js</code> — the self-contained
+          embedding worker (Transformers.js + ONNX Runtime inlined)</li>
+      </ul>
+      <p>
+        Both are loaded with <em>relative</em> URLs so the page works from a
+        project sub-path (<code>user.github.io/repo/</code>). The ~68&nbsp;MB
+        model weights and ORT wasm binaries are <em>not</em> committed;
+        instead the component's documented fallbacks supply them at runtime:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Attribute</th><th>Value used here</th><th>Source</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>worker-url</code></td>
+            <td><code>./generate-embedding-worker.js</code></td>
+            <td>same origin, relative</td>
+          </tr>
+          <tr>
+            <td><code>model-path</code></td>
+            <td><code>./models/</code></td>
+            <td>falls back to the Hugging Face hub (~24&nbsp;MB q8 weights, cached in Cache Storage after the first load)</td>
+          </tr>
+          <tr>
+            <td><code>ort-path</code></td>
+            <td><code>cdn.jsdelivr.net/npm/onnxruntime-web@…/dist/</code></td>
+            <td>ONNX Runtime wasm binaries (all backend variants; the <code>transformers</code> package itself only ships the WebGPU/jsep glue)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        To make the demo fully self-hosted, copy the downloaded assets into
+        <code>docs/</code> before publishing:
+      </p>
+      <pre><code>cp -r models docs/models
+cp -r ort docs/ort</code></pre>
+      <p>
+        The same three attributes work in any host page — see the
+        <a href="https://github.com/lnsy-dev/generate-embedding#readme">README</a>
+        for the full tutorial and programmatic API
+        (<code>window.embeddings</code>).
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      <code>generate-embedding</code> — vanilla JS, no frameworks, no API
+      keys. Unlicense.
+    </p>
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ── helpers ─────────────────────────────────────────── */
+
+      /** First n components of a vector, formatted to 4 decimals. */
+      function vectorPreview(vector, n) {
+        return Array.prototype.slice.call(vector, 0, n)
+          .map(function (num) { return num.toFixed(4); })
+          .join(', ');
+      }
+
+      /** Cosine similarity of two L2-normalized vectors (dot product). */
+      function cosineSimilarity(a, b) {
+        var dot = 0;
+        for (var i = 0; i < a.length; i++) {
+          dot += a[i] * b[i];
+        }
+        return dot;
+      }
+
+      /** JSON.parse that never throws. */
+      function parseVector(json) {
+        try {
+          var parsed = JSON.parse(json);
+          return Array.isArray(parsed) ? parsed : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      /* ── status bar ──────────────────────────────────────── */
+
+      var statusBackend = document.getElementById('status-backend');
+      var statusProgress = document.getElementById('status-progress');
+      var statusError = document.getElementById('status-error');
+      var progressTrack = document.getElementById('progress-track');
+      var progressFill = document.getElementById('progress-fill');
+
+      var liveDemo = document.getElementById('live-demo');
+
+      liveDemo.addEventListener('EMBEDDING-STATUS', function (event) {
+        var detail = event.detail || {};
+        statusBackend.textContent = 'Model ready — backend: ' + detail.backend
+          + ' (' + detail.dtype + '), dims: ' + detail.dims;
+        statusProgress.textContent = '';
+        progressTrack.hidden = true;
+      });
+
+      liveDemo.addEventListener('EMBEDDING-PROGRESS', function (event) {
+        var detail = event.detail || {};
+        if (detail.status !== 'progress') {
+          return;
+        }
+        var percent = Math.round(detail.progress || 0);
+        statusBackend.textContent = 'Loading model…';
+        statusProgress.textContent = percent + '% of ' + (detail.file || 'model');
+        progressTrack.hidden = false;
+        progressFill.style.width = percent + '%';
+      });
+
+      liveDemo.addEventListener('EMBEDDING-ERROR', function (event) {
+        statusError.hidden = false;
+        statusError.textContent = 'Embedding error: ' + (event.detail && event.detail.error);
+      });
+
+      /* ── 1 · live embedding ──────────────────────────────── */
+
+      var liveOutput = document.getElementById('live-output');
+      var liveMarkup = document.getElementById('live-markup');
+
+      liveDemo.addEventListener('EMBEDDING-RESULT', function (event) {
+        var detail = event.detail || {};
+        if (!detail.vector) {
+          return;
+        }
+        liveOutput.textContent = detail.vector.length + ' dims in ' + detail.duration
+          + ' ms — [' + vectorPreview(detail.vector, 5) + ' …]'
+          + (detail.cached ? ' (restored from markup)' : '');
+
+        // Show the element's persisted-state attributes: after every
+        // successful embed it carries `generated` + `vector`, so the
+        // markup can be saved and reloaded without recomputing.
+        var markup = '&lt;generate-embedding generated\n'
+          + '  vector="[' + vectorPreview(detail.vector, 3) + ', …]"&gt;\n  '
+          + detail.text + '\n&lt;/generate-embedding&gt;';
+        liveMarkup.innerHTML = markup;
+      });
+
+      /* ── 2 · cosine similarity ───────────────────────────── */
+
+      var vectorA = null;
+      var vectorB = null;
+      var simScore = document.getElementById('sim-score');
+      var simFill = document.getElementById('sim-fill');
+
+      function updateSimilarity() {
+        if (!vectorA || !vectorB) {
+          return;
+        }
+        var score = cosineSimilarity(vectorA, vectorB);
+        simScore.textContent = 'Similarity: ' + score.toFixed(3);
+        // Map [0, 1] onto the meter; clamp in case of tiny negatives.
+        var percent = Math.max(0, Math.min(1, score)) * 100;
+        simFill.style.width = percent + '%';
+      }
+
+      document.getElementById('sim-a').addEventListener('EMBEDDING-RESULT', function (event) {
+        vectorA = event.detail.vector || null;
+        updateSimilarity();
+      });
+
+      document.getElementById('sim-b').addEventListener('EMBEDDING-RESULT', function (event) {
+        vectorB = event.detail.vector || null;
+        updateSimilarity();
+      });
+
+      /* ── 3 · semantic search ─────────────────────────────── */
+
+      var corpusElements = Array.prototype.slice.call(
+        document.querySelectorAll('#corpus generate-embedding'),
+      );
+      var queryInput = document.getElementById('query-input');
+      var searchButton = document.getElementById('search-button');
+      var searchResults = document.getElementById('search-results');
+
+      function runSearch() {
+        var query = queryInput.value.trim();
+        if (!query || typeof window.embeddings === 'undefined') {
+          return;
+        }
+
+        // Score every corpus element that already carries an embedding.
+        var scored = corpusElements
+          .map(function (element) {
+            var vector = element.hasAttribute('vector')
+              ? parseVector(element.getAttribute('vector'))
+              : null;
+            return { text: element.innerText.trim(), vector: vector, score: -1 };
+          });
+
+        searchResults.innerHTML = '<li class="muted">Embedding query…</li>';
+
+        // The query is embedded through the shared embeddings client
+        // (window.embeddings) rather than a temporary element.
+        window.embeddings.embedTexts([query]).then(function (vectors) {
+          var queryVector = vectors[0];
+          scored.forEach(function (item) {
+            if (item.vector) {
+              item.score = cosineSimilarity(queryVector, item.vector);
+            }
+          });
+          scored.sort(function (a, b) { return b.score - a.score; });
+
+          searchResults.innerHTML = scored
+            .map(function (item, index) {
+              var scoreText = item.vector ? item.score.toFixed(3) : '—';
+              return '<li' + (index === 0 ? ' class="best"' : '') + '>'
+                + '<span class="result-text">' + item.text + '</span>'
+                + '<strong class="result-score">' + scoreText + '</strong>'
+                + '</li>';
+            })
+            .join('');
+        }).catch(function (error) {
+          searchResults.innerHTML = '<li class="error">Search failed: ' + error.message + '</li>';
+        });
+      }
+
+      searchButton.addEventListener('click', runSearch);
+      queryInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          runSearch();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
