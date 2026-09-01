@@ -5,7 +5,7 @@
  */
 
 .demo {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--surface-alt);
   border: 1px solid var(--color-rule);
   border-radius: 6px;
   padding: var(--rhythm-md);
@@ -14,12 +14,12 @@
 
 .demo label {
   display: block;
-  font-family: "Roboto Condensed", sans-serif;
+  font-family: var(--font-header);
   font-size: calc(var(--type-body) * 0.9);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin: var(--rhythm-sm) 0 var(--rhythm-xs);
-  color: #666;
+  color: var(--muted);
 }
 
 .demo label:first-child {
@@ -65,7 +65,7 @@ code {
 }
 
 pre {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--surface-alt);
   border-left: 4px solid var(--color-link);
   border-radius: 4px;
   padding: var(--rhythm-md);
@@ -73,7 +73,7 @@ pre {
 }
 
 code {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--surface-alt);
   padding: 0.125rem 0.25rem;
   border-radius: 3px;
 }
@@ -97,9 +97,9 @@ td {
 }
 
 th {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--surface-alt);
   color: var(--color-heading);
-  font-family: "Roboto Condensed", sans-serif;
+  font-family: var(--font-header);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -122,7 +122,7 @@ button {
   margin-top: var(--rhythm-xs);
   padding: var(--rhythm-xs) var(--rhythm-sm);
   font-size: 1rem;
-  font-family: "Roboto Condensed", sans-serif;
+  font-family: var(--font-header);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
