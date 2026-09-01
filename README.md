@@ -41,8 +41,6 @@ You must copy these from `node_modules/generate-embedding/` into your public / s
 ```bash
 # Example: copy into a Vite / webpack public directory
 cp node_modules/generate-embedding/dist/generate-embedding-worker.js public/
-cp node_modules/generate-embedding/dist/*.mjs public/
-cp node_modules/generate-embedding/dist/*.wasm public/
 cp -r node_modules/generate-embedding/models public/
 cp -r node_modules/generate-embedding/ort public/
 ```
@@ -121,8 +119,6 @@ Copy the worker, wasm, model, and ORT assets to your output directory with `Copy
 new CopyWebpackPlugin({
   patterns: [
     { from: 'node_modules/generate-embedding/dist/generate-embedding-worker.js', to: 'generate-embedding-worker.js' },
-    { from: 'node_modules/generate-embedding/dist/*.mjs', to: '[name][ext]' },
-    { from: 'node_modules/generate-embedding/dist/*.wasm', to: '[name][ext]' },
     { from: 'node_modules/generate-embedding/models', to: 'models' },
     { from: 'node_modules/generate-embedding/ort', to: 'ort' },
   ],
@@ -410,8 +406,9 @@ npm run build
 This produces `dist/` with:
 
 - `main.min.js` — the bundled app (custom element + CSS).
-- `generate-embedding-worker.js` — the embedding worker.
-- `chunks/` — any dynamic chunks.
+- `generate-embedding-worker.js` — the embedding worker, fully
+  self-contained (Transformers.js + ONNX Runtime inlined) so hosts only
+  need to copy a single worker file.
 - `models/` and `ort/` — copied from `models/` and `ort/` if they were downloaded.
 
 Serve `dist/` from any static host. Make sure `models/` and `ort/` are served at the paths configured by `model-path` and `ort-path`. If they are missing, the component falls back to the Hugging Face hub.

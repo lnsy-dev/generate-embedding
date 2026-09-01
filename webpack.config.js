@@ -5,6 +5,8 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import fs from 'fs';
+import PruneOrtFallbackAssetsPlugin from './scripts/prune-ort-fallback-assets-plugin.js';
+import webpack from 'webpack';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -244,5 +246,15 @@ export default {
           }),
         ]
       : []),
+    // The ORT fallback assets are dead weight: the component always sets
+    // wasmPaths from its ort-path attribute, so ORT never fetches the
+    // webpack-emitted copies. Keeps dist/ and the npm package slim.
+    new PruneOrtFallbackAssetsPlugin(),
+    // Merge the worker's dynamic @huggingface/transformers chunk into the
+    // worker entry, so dist/generate-embedding-worker.js is a single
+    // self-contained file. Consumers copy exactly one worker file; without
+    // this, the worker importScripts()es chunks/ at the domain root and
+    // 404s unless hosts know to copy that directory too.
+    new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
   ],
 };

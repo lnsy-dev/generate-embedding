@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import webpack from 'webpack';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
+import PruneOrtFallbackAssetsPlugin from './scripts/prune-ort-fallback-assets-plugin.js';
 import baseConfig from './webpack.config.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,9 +14,28 @@ const __dirname = path.dirname(__filename);
  * copied into docs/ so the GitHub Pages demo is fully self-hosted: every
  * request (page, worker, model weights, ORT wasm binaries) stays same-origin
  * and CORS can never enter the picture.
+ *
+ * The docs build fails when they are missing: silently publishing a demo
+ * that falls back to the Hugging Face hub / CDN is exactly the failure mode
+ * (CORS errors on deployment) this build exists to prevent. Run
+ * `npm install` first, or set GENERATE_EMBEDDING_SKIP_MODEL_DOWNLOAD=0 and
+ * reinstall, to fetch the assets.
  */
-const hasModels = fs.existsSync(path.resolve(__dirname, 'models'));
-const hasOrt = fs.existsSync(path.resolve(__dirname, 'ort'));
+const modelsDir = path.resolve(__dirname, 'models');
+const ortDir = path.resolve(__dirname, 'ort');
+const hasModels = fs.existsSync(modelsDir);
+const hasOrt = fs.existsSync(ortDir);
+
+if (!hasModels || !hasOrt) {
+  const missing = [
+    ...(hasModels ? [] : [`models/ (${modelsDir})`]),
+    ...(hasOrt ? [] : [`ort/ (${ortDir})`]),
+  ];
+  throw new Error(
+    `build:docs requires the self-hosted runtime assets, which are missing: ${missing.join(', ')}. `
+    + 'Run `npm install` (the postinstall script downloads them), then rebuild.',
+  );
+}
 
 /**
  * Prune the experimental JSPI ORT variant from the copied runtime. It is
@@ -27,43 +47,6 @@ const hasOrt = fs.existsSync(path.resolve(__dirname, 'ort'));
  * @returns {boolean} False when the file should be skipped
  */
 const skipJspi = (assetPath) => !assetPath.includes('.jspi.');
-
-/**
- * Prune fallback wasm/mjs assets from the docs build.
- *
- * The @huggingface/transformers bundle references the ONNX Runtime
- * binaries as webpack asset modules. At runtime those references are only
- * evaluated when ORT has no `locateFile` override — but the component
- * always sets `env.backends.onnx.wasm.wasmPaths` from the `ort-path`
- * attribute, so the assets are never fetched. The docs demo points
- * `ort-path` at the jsdelivr CDN, so these multi-megabyte fallback files
- * are pruned to keep the committed docs/ directory small.
- */
-class PruneOrtFallbackAssetsPlugin {
-  /**
-   * Remove emitted wasm/mjs fallback assets from the compilation.
-   *
-   * @param {import('webpack').Compiler} compiler The webpack compiler
-   * @returns {void}
-   */
-  apply(compiler) {
-    compiler.hooks.thisCompilation.tap('PruneOrtFallbackAssetsPlugin', (compilation) => {
-      compilation.hooks.processAssets.tap(
-        { name: 'PruneOrtFallbackAssetsPlugin', stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_SUMMARIZE },
-        (assets) => {
-          for (const name of Object.keys(assets)) {
-            // Asset-module emissions are named by content hash (e.g.
-            // bb191ad2bb217f542c38.wasm); the bundle's own outputs always
-            // carry meaningful names.
-            if (/^[0-9a-f]{16,32}\.(wasm|mjs)$/.test(name)) {
-              compilation.deleteAsset(name);
-            }
-          }
-        },
-      );
-    });
-  }
-}
 
 /**
  * GitHub Pages docs build.
@@ -98,16 +81,12 @@ export default {
     new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
     // Self-hosted runtime assets: model weights (q8 for WASM, fp16 for
     // WebGPU) and ORT wasm binaries, minus the experimental JSPI variant.
-    ...(hasModels || hasOrt
-      ? [
-          new CopyWebpackPlugin({
-            patterns: [
-              ...(hasModels ? [{ from: 'models', to: 'models' }] : []),
-              ...(hasOrt ? [{ from: 'ort', to: 'ort', filter: skipJspi }] : []),
-            ],
-          }),
-        ]
-      : []),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: modelsDir, to: 'models' },
+        { from: ortDir, to: 'ort', filter: skipJspi },
+      ],
+    }),
     new PruneOrtFallbackAssetsPlugin(),
   ],
 };
