@@ -139,6 +139,8 @@ npm start            # opens the dev server on http://localhost:3000
 
 The first `npm install` runs a postinstall script. If you want to skip the local download, set `GENERATE_EMBEDDING_SKIP_MODEL_DOWNLOAD=1`; the component will fetch the model from the Hugging Face hub the first time it runs instead.
 
+The postinstall is non-fatal: if the script cannot run (or npm blocks install scripts), `npm install` still succeeds and the component falls back to the Hugging Face hub at runtime. Note that some npm versions warn about and skip install scripts by default; run `node node_modules/generate-embedding/scripts/download-model.js` manually to pre-fetch the model.
+
 ### Bundler examples
 
 **webpack**
@@ -461,7 +463,7 @@ Serve `dist/` from any static host. Make sure `models/` and `ort/` are served at
 - `src/generate-embedding.js` defines the custom element and observes `innerText`.
 - `src/lib/embeddings.js` manages a shared, reference-counted worker.
 - `src/embed-worker.js` runs the model in a web worker so the UI thread never blocks.
-- `scripts/download-model.js` downloads model weights and ORT binaries at install time.
+- `scripts/download-model.js` downloads model weights and ORT binaries at install time (locates `onnxruntime-web` via standard Node resolution, so hoisted and pnpm layouts work).
 - Webpack bundles the main app and the worker as separate entries.
 
 When the last `<generate-embedding>` element is removed from the DOM, the worker is terminated and the model runtime is freed from memory.

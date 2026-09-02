@@ -1,6 +1,6 @@
 {
   "name": "generate-embedding",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Browser-native sentence embeddings as a custom element (all-MiniLM-L6-v2, Transformers.js, Web Worker)",
   "main": "dist/main.min.js",
   "type": "module",
@@ -37,6 +37,7 @@
     "dist/generate-embedding-worker.js",
     "dist/index.html",
     "src/",
+    "scripts/download-model.js",
     "styles/",
     "index.js",
     "index.css",
@@ -50,7 +51,7 @@
     "start": "webpack serve",
     "build": "NODE_ENV=production webpack build",
     "build:docs": "NODE_ENV=production webpack build --config webpack.docs.config.js",
-    "postinstall": "node scripts/download-model.js",
+    "postinstall": "node scripts/download-model.js || echo '[generate-embedding] postinstall skipped; the component will fetch the model from the Hugging Face hub at runtime.'",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {

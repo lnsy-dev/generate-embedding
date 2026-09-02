@@ -14,13 +14,16 @@
  *   - Non-fatal: network failures print a warning and exit 0 so an
  *     `npm install` behind a firewall does not fail; the runtime fallback
  *     above keeps the component working.
+ *   - Hoisting-aware: onnxruntime-web is located via Node's standard module
+ *     resolution, so hoisted (npm/yarn), nested, and pnpm layouts all work.
  *
  * Usage: node scripts/download-model.js
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,25 +112,58 @@ async function downloadFile(relativePath) {
 }
 
 /**
+ * Locate the installed onnxruntime-web dist directory using Node's standard
+ * module resolution. Unlike a hardcoded node_modules path, this also finds
+ * hoisted (typical consumer installs) and pnpm layouts.
+ *
+ * @param {string} [fromDir] - Directory to resolve from (defaults to the package root)
+ * @returns {string|null} Absolute path to onnxruntime-web/dist, or null if not installed
+ */
+export function findOrtSource(fromDir = packageRoot) {
+  try {
+    const require = createRequire(path.join(fromDir, 'package.json'));
+    const entryPath = require.resolve('onnxruntime-web');
+
+    // Walk up from the resolved entry (…/onnxruntime-web/dist/ort.min.js) to
+    // the directory actually named onnxruntime-web (works under pnpm too).
+    let dir = path.dirname(entryPath);
+    for (;;) {
+      if (path.basename(dir) === 'onnxruntime-web') {
+        return path.join(dir, 'dist');
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) {
+        return null;
+      }
+      dir = parent;
+    }
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Copy the ONNX Runtime Web binaries (ort-*.wasm and their .mjs loaders)
  * from the onnxruntime-web package into ort/.
  *
+ * @param {{sourceDir?: string, targetDir?: string}} [options] Overrides for tests
  * @returns {void}
  */
-function copyOrtFiles() {
-  const ortSource = path.join(packageRoot, 'node_modules', 'onnxruntime-web', 'dist');
-  if (!fs.existsSync(ortSource)) {
+export function copyOrtFiles({ sourceDir, targetDir } = {}) {
+  const source = sourceDir ?? findOrtSource();
+  const target = targetDir ?? ortDir;
+  if (!source || !fs.existsSync(source)) {
     console.warn('[download-model] onnxruntime-web not installed; skipping ORT copy.');
     console.warn('[download-model] Run `npm install` first, then re-run this script.');
     return;
   }
 
-  fs.mkdirSync(ortDir, { recursive: true });
-  const entries = fs.readdirSync(ortSource).filter((name) => /ort-.*\.(wasm|mjs)$/.test(name));
+  fs.mkdirSync(target, { recursive: true });
+  const entries = fs.readdirSync(source).filter((name) => /ort-.*\.(wasm|mjs)$/.test(name));
   for (const name of entries) {
-    fs.copyFileSync(path.join(ortSource, name), path.join(ortDir, name));
+    fs.copyFileSync(path.join(source, name), path.join(target, name));
   }
-  console.log(`[download-model] Copied ${entries.length} ORT runtime files to ort/`);
+  console.log(`[download-model] Copied ${entries.length} ORT runtime files to ${target}`);
 }
 
 /**
@@ -149,9 +185,14 @@ async function main() {
   console.log(`[download-model] ${MODEL_ID} is available in models/`);
 }
 
-main().catch((error) => {
-  // Non-fatal: the component falls back to the Hugging Face hub at runtime.
-  console.warn(`[download-model] Model download failed: ${error.message}`);
-  console.warn('[download-model] The component will download the model from');
-  console.warn('[download-model] huggingface.co into browser Cache Storage at runtime.');
-});
+// Only auto-run when invoked directly (`node scripts/download-model.js`);
+// importing the module (e.g. from tests) must stay side-effect free.
+const isDirectRun = Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isDirectRun) {
+  main().catch((error) => {
+    // Non-fatal: the component falls back to the Hugging Face hub at runtime.
+    console.warn(`[download-model] Model download failed: ${error.message}`);
+    console.warn('[download-model] The component will download the model from');
+    console.warn('[download-model] huggingface.co into browser Cache Storage at runtime.');
+  });
+}
